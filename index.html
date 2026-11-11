@@ -3,14 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Media Diary</title>
+<title>Abelor's Shelf</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22w3.org%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231f1f23%22%2F%3E%3Crect%20x%3D%2212%22%20y%3D%2214%22%20width%3D%228%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%239b6bcc%22%2F%3E%3Crect%20x%3D%2223%22%20y%3D%2218%22%20width%3D%228%22%20height%3D%2228%22%20rx%3D%222%22%20fill%3D%22%237bc96f%22%2F%3E%3Crect%20x%3D%2234%22%20y%3D%2212%22%20width%3D%228%22%20height%3D%2234%22%20rx%3D%222%22%20fill%3D%22%23e55d87%22%2F%3E%3Crect%20x%3D%2245%22%20y%3D%2216%22%20width%3D%228%22%20height%3D%2230%22%20rx%3D%222%22%20fill%3D%22%23f39c4b%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2249%22%20width%3D%2244%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%239ca3af%22%2F%3E%3C%2Fsvg%3E">
 <style>
 :root { --bg: #161618; --card: #1f1f23; --input: #141416; --border: #2e2e34; --text: #f0f0f3; --muted: #9ca3af; --accent: #9b6bcc; --accent-bg: rgba(155,107,204,.25); --accent-bd: rgba(155,107,204,.45); }
 * { box-sizing: border-box; }
-body { margin: 0; padding: 20px 14px 50px; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; }
+body { margin: 0; padding: 24px 14px 50px; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; }
 .wrap { width: 100%; max-width: 920px; display: flex; flex-direction: column; gap: 16px; }
+.site-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.site-title { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.02em; background: linear-gradient(90deg, #fff, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-.tab { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 8px; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+.tab { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
 .tab.active { color: #fff; border-color: var(--accent); background: var(--accent-bg); }
 .top-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 12px; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
@@ -122,13 +125,17 @@ input:focus, select:focus { border-color: var(--accent); }
       const availA = [...new Set(items.filter(x => match(x, "author")).map(x => x.author).filter(Boolean))].sort();
       const filtered = items.filter(x => match(x, null));
 
+      // Top Site Header
+      const header = el("div", "site-header");
+      header.appendChild(el("h1", "site-title", "Abelor's Shelf"));
       const tabsBar = el("div", "tabs");
       for (const [k, m] of Object.entries(META)) {
         const b = el("button", k === cat ? "tab active" : "tab", m.label);
         b.onclick = () => setCat(k);
         tabsBar.appendChild(b);
       }
-      root.appendChild(tabsBar);
+      header.appendChild(tabsBar);
+      root.appendChild(header);
 
       const topGrid = el("div", "top-grid");
 
@@ -199,9 +206,10 @@ input:focus, select:focus { border-color: var(--accent); }
       topGrid.appendChild(calCard);
 
       // Filter Card
-      const fCard = el("div", "card");
-      const hBar = el("div", "head-bar");
-      hBar.appendChild(el("div", "title", META[cat].label));hBar.appendChild(el("span", "badge", filtered.length + " из " + items.length));  
+      const fCard = el("div", "card");  
+const hBar = el("div", "head-bar");  
+hBar.appendChild(el("div", "title", META[cat].label));  
+hBar.appendChild(el("span", "badge", filtered.length + " из " + items.length));  
 fCard.appendChild(hBar);
 
 const ctrls = el("div", "controls");  
