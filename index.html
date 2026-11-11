@@ -71,13 +71,13 @@ function parseDate(str) {
   if (!sep) return null;
   const p = clean.split(sep);
   if (p.length !== 3) return null;
-  let d = p[0], m = p[1], y = p[2];
-  if (d.length === 4) { y = p[0]; m = p[1]; d = p[2]; }
+  let d = p.at(0), m = p.at(1), y = p.at(2);
+  if (d.length === 4) { y = p.at(0); m = p.at(1); d = p.at(2); }
   else if (y.length === 2) { y = "20" + y; }
   const mn = Number(m), yn = Number(y), dn = Number(d);
   if (!yn || mn < 1 || mn > 12 || dn < 1 || dn > 31) return null;
   const dd = String(dn).padStart(2, "0"), mm = String(mn).padStart(2, "0");
-  return { dd, mn, yn, mName: MONTHS_UPPER[mn - 1], ym: yn + "-" + mm, iso: yn + "-" + mm + "-" + dd };
+  return { dd, mn, yn, mName: MONTHS_UPPER.at(mn - 1), ym: yn + "-" + mm, iso: yn + "-" + mm + "-" + dd };
 }
 
 function getDecade(rel) {
@@ -91,15 +91,15 @@ function decLabel(k) {
 
 function parseCategory(key, text) {
   const list = [];
-  for (const line of text.split("\n")) {
+  for (const line of String(text || "").split("\n")) {
     const t = line.trim();
     if (!t.startsWith("- ")) continue;
     try {
       const arr = JSON.parse(t.slice(2).trim());
       if (!Array.isArray(arr) || arr.length < 3) continue;
-      const di = parseDate(arr[2]);
+      const di = parseDate(arr.at(2));
       if (!di) continue;
-      const relStr = arr[1] ? String(arr[1]).trim() : "";
+      const relStr = arr.at(1) ? String(arr.at(1)).trim() : "";
       const relNum = Number(relStr) || 0;
       const rest = arr.slice(3).map(x => String(x || "").trim());
       const low = rest.join(" ").toLowerCase();
@@ -123,7 +123,7 @@ function parseCategory(key, text) {
           if (/^([1-9](\.\d)?|10(\.0)?)$/.test(v)) { badge = "★ " + v; break; }
         }
       }
-      list.push({ title: String(arr[0] || "").trim(), relStr, relNum, decade: getDecade(relNum), di, isRepeat, author, badge });
+      list.push({ title: String(arr.at(0) || "").trim(), relStr, relNum, decade: getDecade(relNum), di, isRepeat, author, badge });
     } catch (e) {}
   }
   return list.sort((a, b) => b.di.iso.localeCompare(a.di.iso));
@@ -136,14 +136,14 @@ const DB = {
   books:  parseCategory("books",  RAW.books)
 };
 
-let cat = "movies";
-let st = { q: "", year: "all", month: "all", decade: "all", author: "all", rep: false, day: null }; let calY = new Date().getFullYear(), calM = new Date().getMonth() + 1;
+let cat = "movies";let st = { q: "", year: "all", month: "all", decade: "all", author: "all", rep: false, day: null };  
+let calY = new Date().getFullYear(), calM = new Date().getMonth() + 1;
 
 function setCat(newCat) {  
 cat = newCat;  
 st = { q: "", year: "all", month: "all", decade: "all", author: "all", rep: false, day: null };  
 const items = DB[cat];  
-if (items.length) { calY = items[0].di.yn; calM = items[0].di.mn; }  
+if (items.length) { calY = items.at(0).di.yn; calM = items.at(0).di.mn; }  
 const m = META[cat];  
 document.documentElement.style.setProperty("--accent", m.color);  
 document.documentElement.style.setProperty("--accent-bg", m.bg);  
@@ -216,7 +216,7 @@ root.innerHTML =
 '' + META[cat].label + '' + filtered.length + ' из ' + items.length + '' +  
 '<input id="qIn" placeholder="Поиск..." value="' + st.q.replace(/"/g, """) + '">' +  
 'Год (все)' + availY.map(y => '<option value="' + y + '"' + (String(y) === st.year ? ' selected' : '') + '>' + y + '').join("") + '' +  
-'Месяц (все)' + availM.map(m => '<option value="' + m + '"' + (String(m) === st.month ? ' selected' : '') + '>' + MONTHS_TITLE[m-1] + '').join("") + '' +  
+'Месяц (все)' + availM.map(m => '<option value="' + m + '"' + (String(m) === st.month ? ' selected' : '') + '>' + MONTHS_TITLE.at(m-1) + '').join("") + '' +  
 '' + (cat === "books" ? 'Автор (все)' + availA.map(a => '<option value="' + a.replace(/"/g,""") + '"' + (a === st.author ? ' selected' : '') + '>' + a + '').join("") + '' :  
 'Эпоха (все)' + availD.map(d => '<option value="' + d + '"' + (d === st.decade ? ' selected' : '') + '>' + decLabel(d) + '').join("") + '') +  
 '' + REP_SVG + '' + META[cat].repWord + '' +  
